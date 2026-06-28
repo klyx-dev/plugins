@@ -1,0 +1,11 @@
+[
+  {
+    "id": "com.klyx.ci.automerge",
+    "name": "Auto-merge Test",
+    "version": "0.1.0",
+    "description": "Testing auto-merge on plain PR.",
+    "author": "Klyx CI",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null
+  }
+]
