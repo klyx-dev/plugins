@@ -1,0 +1,8 @@
+{
+  "id": "com.klyx.dev.test",
+  "name": "CI Test Plugin",
+  "version": "0.1.0",
+  "minAppVersion": "4.2.0",
+  "description": "Testing the auto-merge CI pipeline.",
+  "downloadCount": 0
+}
