@@ -7,5 +7,14 @@
     "author": "Klyx CI",
     "minAppVersion": "4.2.0",
     "maxAppVersion": null
+  },
+  {
+    "id": "com.klyx.test.v2",
+    "name": "Unified Test V2",
+    "version": "0.1.0",
+    "description": "Testing unified workflow with rule changes.",
+    "author": "Klyx CI",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null
   }
 ]
