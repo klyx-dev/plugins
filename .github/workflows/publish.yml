@@ -22,9 +22,15 @@ jobs:
 
       - name: Collect bundles
         run: |
-          mkdir -p workspace
-          for f in incoming/*.klyx; do
-            [ -f "$f" ] && cp "$f" workspace/
+          mkdir -p workspace incoming
+          shopt -s nullglob
+          files=(incoming/*.klyx)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No .klyx files found in incoming/"
+            exit 0
+          fi
+          for f in "${files[@]}"; do
+            cp "$f" workspace/
           done
 
       - name: Publish bundles
