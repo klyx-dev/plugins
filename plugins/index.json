@@ -8,5 +8,15 @@
     "minAppVersion": "4.2.0",
     "maxAppVersion": null,
     "downloadCount": 0
+  },
+  {
+    "id": "com.klyx.ci.test2",
+    "name": "CI Test Plugin 2",
+    "version": "0.1.0",
+    "description": "Second CI pipeline test with auto-merge.",
+    "author": "Klyx CI",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null,
+    "downloadCount": 0
   }
 ]
