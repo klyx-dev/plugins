@@ -113,9 +113,5 @@ def main():
 
             print(f"Published: {plugin_id} v{plugin_version}", flush=True)
 
-    for f in INCOMING_DIR.glob("*.klyx"):
-        f.unlink()
-
-
 if __name__ == "__main__":
     main()
