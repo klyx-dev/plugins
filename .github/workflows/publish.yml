@@ -56,3 +56,18 @@ jobs:
           gh pr merge --merge --admin
         env:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
+
+      - name: Cleanup incoming/
+        if: success()
+        run: |
+          processed=$(git status --porcelain incoming/ | wc -l)
+          if [ "$processed" -eq 0 ]; then
+            echo "Nothing to clean up"
+            exit 0
+          fi
+          git remote set-url origin "https://x-access-token:${BOT_PAT}@github.com/klyx-dev/plugins.git"
+          git add incoming/
+          git commit -m "cleanup: remove processed bundles from incoming/"
+          git push origin main
+        env:
+          BOT_PAT: ${{ secrets.BOT_PAT }}
