@@ -1,0 +1,10 @@
+{
+  "id": "com.klyx.ci.test3",
+  "name": "CI Test Plugin 3",
+  "version": "0.1.0",
+  "description": "Testing Worker auto-merge.",
+  "author": {
+    "name": "Klyx CI"
+  },
+  "minAppVersion": "4.2.0"
+}
