@@ -3,6 +3,8 @@ name: Publish Plugin
 on:
   push:
     branches: [main]
+    paths:
+      - 'incoming/**'
   workflow_dispatch:
 
 permissions:
