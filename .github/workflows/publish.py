@@ -63,7 +63,6 @@ def update_index(plugin_id: str, meta: dict):
         "author": meta.get("author", {}).get("name", ""),
         "minAppVersion": meta["minAppVersion"],
         "maxAppVersion": meta.get("maxAppVersion"),
-        "downloadCount": 0,
     }
     index.append(entry)
     index.sort(key=lambda x: x["name"].lower())
@@ -96,12 +95,6 @@ def main():
 
             # Extract metadata
             meta_path = plugin_dir / "metadata.json"
-            meta["downloadCount"] = 0
-            # Preserve existing download count
-            if meta_path.exists():
-                with open(meta_path) as f:
-                    existing = json.load(f)
-                    meta["downloadCount"] = existing.get("downloadCount", 0)
             with open(meta_path, "w") as f:
                 json.dump(meta, f, indent=2)
                 f.write("\n")
