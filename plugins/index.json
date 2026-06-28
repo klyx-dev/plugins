@@ -2,7 +2,7 @@
   {
     "id": "com.klyx.plugin.sample",
     "name": "Sample Plugin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A reference implementation showing the Klyx plugin API capabilities.",
     "author": "Klyx Team",
     "minAppVersion": "4.2.0",
