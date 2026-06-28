@@ -1,0 +1,11 @@
+[
+  {
+    "id": "com.klyx.test.cleanup",
+    "name": "Cleanup Test",
+    "version": "0.1.0",
+    "description": "Testing incoming/ cleanup.",
+    "author": "Klyx CI",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null
+  }
+]
