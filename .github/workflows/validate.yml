@@ -1,12 +1,13 @@
 name: Validate Plugin
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize]
     paths:
       - 'incoming/**'
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -15,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -27,3 +29,9 @@ jobs:
             [ ! -f "$f" ] && continue
             python3 .github/workflows/validate_bundle.py "$f"
           done
+
+      - name: Enable auto-merge
+        if: success()
+        run: gh pr merge ${{ github.event.pull_request.number }} --auto --merge
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
