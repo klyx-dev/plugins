@@ -1,4 +1,4 @@
-name: Validate Plugin
+name: Validate & Publish
 
 on:
   pull_request_target:
@@ -7,7 +7,7 @@ on:
       - 'incoming/**'
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -30,8 +30,45 @@ jobs:
             python3 .github/workflows/validate_bundle.py "$f"
           done
 
-      - name: Enable auto-merge
-        if: success()
-        run: gh pr merge ${{ github.event.pull_request.number }} --auto --merge
+  publish:
+    needs: validate
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download bundles from PR
+        run: |
+          mkdir -p workspace incoming
+          for url in $(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files --jq '.[] | select(.filename | startswith("incoming/")) | .raw_url'); do
+            name=$(basename "$url")
+            curl -sL "$url" -o "workspace/$name"
+            echo "Downloaded: $name"
+          done
         env:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
+
+      - name: Publish bundles
+        run: python3 .github/workflows/publish.py
+
+      - name: Commit and push to main
+        run: |
+          git config user.name "klyx-bot"
+          git config user.email "bot@klyx-dev.github.io"
+          git add plugins/ incoming/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git remote set-url origin "https://x-access-token:${BOT_PAT}@github.com/klyx-dev/plugins.git"
+          git commit -m "publish plugins"
+          git push origin main
+        env:
+          BOT_PAT: ${{ secrets.BOT_PAT }}
