@@ -72,3 +72,8 @@ jobs:
           git push origin main
         env:
           BOT_PAT: ${{ secrets.BOT_PAT }}
+
+      - name: Close PR
+        run: gh pr close ${{ github.event.pull_request.number }} --comment "Plugin published to main"
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
