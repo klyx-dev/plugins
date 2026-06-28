@@ -21,6 +21,13 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Collect bundles
+        run: |
+          mkdir -p workspace
+          for f in incoming/*.klyx; do
+            [ -f "$f" ] && cp "$f" workspace/
+          done
+
       - name: Publish bundles
         run: python3 .github/workflows/publish.py
 
