@@ -30,17 +30,21 @@ jobs:
       - name: Publish bundles
         run: python3 .github/workflows/publish.py
 
-      - name: Commit and push
+      - name: Create PR and merge
         run: |
           git config user.name "klyx-bot"
           git config user.email "bot@klyx-dev.github.io"
-          git remote set-url origin "https://x-access-token:${BOT_PAT}@github.com/klyx-dev/plugins.git"
           git add plugins/ incoming/
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
+          TIMESTAMP=$(date +%s)
+          BRANCH="publish/auto-$TIMESTAMP"
+          git checkout -b "$BRANCH"
           git commit -m "publish plugins"
-          git push
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" --title "Publish plugins" --body "Auto-generated PR"
+          gh pr merge --merge --admin
         env:
-          BOT_PAT: ${{ secrets.BOT_PAT }}
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
