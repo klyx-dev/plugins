@@ -118,11 +118,6 @@ def main():
             # Update index
             update_index(plugin_id, meta)
 
-            # Set outputs for commit message
-            with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-                out.write(f"plugin_id={plugin_id}\n")
-                out.write(f"plugin_version={plugin_version}\n")
-
             print(f"Published: {plugin_id} v{plugin_version}", flush=True)
 
     for f in INCOMING_DIR.glob("*.klyx"):
