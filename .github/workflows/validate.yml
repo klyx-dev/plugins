@@ -3,8 +3,6 @@ name: Validate & Publish
 on:
   pull_request_target:
     types: [opened, synchronize]
-    paths:
-      - 'incoming/**'
 
 permissions:
   contents: write
@@ -75,19 +73,4 @@ jobs:
       - name: Purge jsDelivr cache
         run: |
           curl -s "https://purge.jsdelivr.net/gh/klyx-dev/plugins@main/plugins/index.json"
-          for f in incoming/*.klyx; do
-            [ ! -f "$f" ] && continue
-            id=$(python3 -c "
-import json, tarfile
-with tarfile.open('$f', 'r:gz') as t:
-    meta = json.loads(t.extractfile('plugin.json').read())
-print(f'{meta[\"id\"]}/{meta[\"version\"]}.klyx')
-print(f'{meta[\"id\"]}/metadata.json')
-print(f'{meta[\"id\"]}/icon.png')
-print(f'{meta[\"id\"]}/readme.md')
-print(f'{meta[\"id\"]}/changelog.md')
-" 2>/dev/null)
-            for path in $id; do
-              [ -n "$path" ] && curl -s "https://purge.jsdelivr.net/gh/klyx-dev/plugins@main/plugins/$path" > /dev/null
-            done
-          done
+          python3 .github/workflows/purge_cache.py incoming/*.klyx 2>/dev/null || true
