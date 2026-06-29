@@ -3,6 +3,8 @@ name: Validate & Publish
 on:
   pull_request_target:
     types: [opened, synchronize]
+    paths:
+      - 'incoming/**'
 
 permissions:
   contents: write
