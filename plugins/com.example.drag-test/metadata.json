@@ -1,0 +1,12 @@
+{
+  "id": "com.example.drag-test",
+  "version": "1.0.0",
+  "name": "Drag Test Plugin",
+  "description": "Testing the drag-and-drop publish flow.",
+  "author": {
+    "name": "Test Author",
+    "github": "testauthor"
+  },
+  "minAppVersion": "1.0.0",
+  "maxAppVersion": null
+}
