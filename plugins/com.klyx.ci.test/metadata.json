@@ -1,0 +1,10 @@
+{
+  "id": "com.klyx.ci.test",
+  "name": "CI Test Plugin",
+  "version": "0.1.0",
+  "description": "Fresh CI pipeline test.",
+  "author": {
+    "name": "Klyx CI"
+  },
+  "minAppVersion": "4.2.0"
+}
