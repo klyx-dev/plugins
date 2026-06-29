@@ -2,12 +2,10 @@
 """Validate a .klyx bundle and publish it to the registry."""
 
 import json
-import os
 import shutil
 import tarfile
 from pathlib import Path
 
-WORKSPACE = Path("workspace")
 PLUGINS_DIR = Path("plugins")
 INCOMING_DIR = Path("incoming")
 
@@ -72,7 +70,7 @@ def update_index(plugin_id: str, meta: dict):
         f.write("\n")
 
 def main():
-    bundle_files = list(WORKSPACE.glob("*.klyx"))
+    bundle_files = list(INCOMING_DIR.glob("*.klyx"))
     if not bundle_files:
         print("No .klyx files found in workspace", flush=True)
         return
