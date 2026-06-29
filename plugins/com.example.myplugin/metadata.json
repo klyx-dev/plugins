@@ -1,0 +1,11 @@
+{
+  "id": "com.example.myplugin",
+  "version": "1.0.0",
+  "name": "My Plugin",
+  "description": "A sample plugin to test the publish workflow.",
+  "author": {
+    "name": "Your Name"
+  },
+  "minAppVersion": "1.0.0",
+  "maxAppVersion": null
+}
