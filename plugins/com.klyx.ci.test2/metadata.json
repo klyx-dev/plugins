@@ -1,0 +1,10 @@
+{
+  "id": "com.klyx.ci.test2",
+  "name": "CI Test Plugin 2",
+  "version": "0.1.0",
+  "description": "Second CI pipeline test with auto-merge.",
+  "author": {
+    "name": "Klyx CI"
+  },
+  "minAppVersion": "4.2.0"
+}
