@@ -1,11 +1,1 @@
-[
-  {
-    "id": "com.example.myplugin",
-    "name": "My Plugin",
-    "version": "1.0.0",
-    "description": "A sample plugin to test the publish workflow.",
-    "author": "Your Name",
-    "minAppVersion": "1.0.0",
-    "maxAppVersion": null
-  }
-]
+[]
