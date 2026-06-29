@@ -23,6 +23,15 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Check ownership
+        run: |
+          files=(incoming/*.klyx)
+          if [ -f "${files[0]}" ]; then
+            python3 .github/workflows/check_owner.py \
+              "${{ github.event.pull_request.user.login }}" \
+              "${files[@]}"
+          fi
+
       - name: Validate bundles
         run: |
           for f in incoming/*.klyx; do
