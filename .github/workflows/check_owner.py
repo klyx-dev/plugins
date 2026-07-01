@@ -23,12 +23,8 @@ def fetch_owner_from_repo(plugin_id: str) -> str | None:
         req = urllib.request.Request(url, headers={"User-Agent": "klyx-ci"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.read().decode().strip()
-    except urllib.error.HTTPError as e:
-        if e.code != 404:
-            print(f"⚠️  Could not check repo owner for {plugin_id}: HTTP {e.code}", flush=True)
-    except Exception as e:
-        print(f"⚠️  Could not check repo owner for {plugin_id}: {e}", flush=True)
-    return None
+    except Exception:
+        return None
 
 
 def fetch_owner_from_kv(plugin_id: str) -> str | None:
@@ -38,9 +34,8 @@ def fetch_owner_from_kv(plugin_id: str) -> str | None:
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read())
             return data.get("owner")
-    except Exception as e:
-        print(f"⚠️  Could not check KV owner for {plugin_id}: {e}", flush=True)
-    return None
+    except Exception:
+        return None
 
 
 def main():
@@ -57,18 +52,18 @@ def main():
             with tarfile.open(path, "r:gz") as tar:
                 f = tar.extractfile("plugin.json")
                 if f is None:
-                    print(f"❌ {path}: Missing plugin.json — cannot check ownership", flush=True)
+                    print(f"FAIL {path}: Missing plugin.json \u2014 cannot check ownership", flush=True)
                     exit_code = 1
                     continue
                 meta = json.loads(f.read())
         except Exception as e:
-            print(f"❌ {path}: Cannot read bundle — cannot check ownership: {e}", flush=True)
+            print(f"FAIL {path}: Cannot read bundle \u2014 cannot check ownership: {e}", flush=True)
             exit_code = 1
             continue
 
         plugin_id = meta.get("id")
         if not plugin_id:
-            print(f"❌ {path}: plugin.json missing 'id' — cannot check ownership", flush=True)
+            print(f"FAIL {path}: plugin.json missing 'id' \u2014 cannot check ownership", flush=True)
             exit_code = 1
             continue
 
@@ -78,15 +73,15 @@ def main():
 
         if owner and owner != pr_author:
             print(
-                f"❌ {path}: Plugin '{plugin_id}' is owned by '{owner}', "
+                f"FAIL {path}: Plugin '{plugin_id}' is owned by '{owner}', "
                 f"but PR author is '{pr_author}'. Only the owner can publish updates.",
                 flush=True
             )
             exit_code = 1
         elif owner:
-            print(f"✓ {path}: owner '{owner}' matches PR author", flush=True)
+            print(f"OK {path}: owner '{owner}' matches PR author", flush=True)
         else:
-            print(f"✓ {path}: new plugin (no existing owner)", flush=True)
+            print(f"OK {path}: new plugin (no existing owner)", flush=True)
 
     sys.exit(exit_code)
 

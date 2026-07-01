@@ -107,10 +107,10 @@ def main():
 
     if all_errors:
         for err in all_errors:
-            print(f"❌ {path}: {err}", flush=True)
+            print(f"FAIL {path}: {err}", flush=True)
         sys.exit(1)
 
-    print(f"✅ {path}: {meta['id']} v{meta['version']} valid", flush=True)
+    print(f"OK {path}: {meta['id']} v{meta['version']} valid", flush=True)
 
 
 if __name__ == "__main__":

@@ -61,9 +61,9 @@ jobs:
           body=$(cat /tmp/validate_output.txt)
           {
             if [ "$outcome" = "success" ]; then
-              echo "✅ **Validation passed**"
+              echo "**Validation passed**"
             else
-              echo "❌ **Validation failed**"
+              echo "**Validation failed**"
             fi
             echo ""
             echo '```'
