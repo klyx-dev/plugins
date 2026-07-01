@@ -8,30 +8,31 @@ import sys
 import tarfile
 
 
-def check_plugin_json(path: str) -> tuple[dict | None, list[str]]:
+def check_plugin_json(path: str) -> tuple[dict | None, list[str], list[str]]:
     errors = []
+    members = []
     try:
         with tarfile.open(path, "r:gz") as tar:
             members = tar.getnames()
             if "plugin.json" not in members:
                 errors.append("Missing plugin.json in bundle")
-                return None, errors
+                return None, members, errors
             f = tar.extractfile("plugin.json")
             if f is None:
                 errors.append("Could not extract plugin.json")
-                return None, errors
+                return None, members, errors
             try:
                 meta = json.loads(f.read())
             except json.JSONDecodeError as e:
                 errors.append(f"plugin.json has invalid JSON: {e}")
-                return None, errors
+                return None, members, errors
     except tarfile.ReadError:
         errors.append("Not a valid .tar.gz archive")
-        return None, errors
+        return None, members, errors
     except Exception as e:
         errors.append(f"Cannot read bundle: {e}")
-        return None, errors
-    return meta, errors
+        return None, members, errors
+    return meta, members, errors
 
 
 def validate_meta(path: str, meta: dict) -> list[str]:
@@ -96,16 +97,28 @@ def validate_meta(path: str, meta: dict) -> list[str]:
     return errors
 
 
+def check_apk_exists(path: str, members: list[str]) -> list[str]:
+    errors = []
+    if "plugin.apk" not in members:
+        errors.append(
+            f"Bundle is missing 'plugin.apk' - the assembled APK must be included "
+            f"in the archive. Found files: {', '.join(members)}"
+        )
+    return errors
+
+
 def main():
     path = sys.argv[1]
     name = os.path.basename(path)
     all_errors = []
 
-    meta, json_errors = check_plugin_json(path)
+    meta, members, json_errors = check_plugin_json(path)
     all_errors.extend(json_errors)
 
     if meta is not None:
         all_errors.extend(validate_meta(path, meta))
+
+    all_errors.extend(check_apk_exists(path, members))
 
     if all_errors:
         for err in all_errors:
