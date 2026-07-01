@@ -8,6 +8,7 @@ Reports all issues found before exiting.
 """
 
 import json
+import os
 import sys
 import tarfile
 import urllib.request
@@ -53,22 +54,23 @@ def main():
     exit_code = 0
 
     for path in bundles:
+        name = os.path.basename(path)
         try:
             with tarfile.open(path, "r:gz") as tar:
                 f = tar.extractfile("plugin.json")
                 if f is None:
-                    print(f"FAIL {path}: Missing plugin.json \u2014 cannot check ownership", flush=True)
+                    print(f"FAIL {name}: Missing plugin.json \u2014 cannot check ownership", flush=True)
                     exit_code = 1
                     continue
                 meta = json.loads(f.read())
         except Exception as e:
-            print(f"FAIL {path}: Cannot read bundle \u2014 cannot check ownership: {e}", flush=True)
+            print(f"FAIL {name}: Cannot read bundle \u2014 cannot check ownership: {e}", flush=True)
             exit_code = 1
             continue
 
         plugin_id = meta.get("id")
         if not plugin_id:
-            print(f"FAIL {path}: plugin.json missing 'id' \u2014 cannot check ownership", flush=True)
+            print(f"FAIL {name}: plugin.json missing 'id' \u2014 cannot check ownership", flush=True)
             exit_code = 1
             continue
 
@@ -78,15 +80,15 @@ def main():
 
         if owner and owner != pr_author:
             print(
-                f"FAIL {path}: Plugin '{plugin_id}' is owned by '{owner}'. "
+                f"FAIL {name}: Plugin '{plugin_id}' is owned by '{owner}'. "
                 f"You cannot publish updates to this plugin.",
                 flush=True
             )
             exit_code = 1
         elif owner:
-            print(f"OK {path}: Ownership verified for plugin '{plugin_id}'", flush=True)
+            print(f"OK {name}: Ownership verified for plugin '{plugin_id}'", flush=True)
         else:
-            print(f"OK {path}: No existing owner for '{plugin_id}' \u2014 first-time publishers are welcome", flush=True)
+            print(f"OK {name}: No existing owner for '{plugin_id}' \u2014 first-time publishers are welcome", flush=True)
 
     sys.exit(exit_code)
 

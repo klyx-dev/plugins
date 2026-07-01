@@ -2,6 +2,7 @@
 """Validate a single .klyx bundle and report all issues found."""
 
 import json
+import os
 import re
 import sys
 import tarfile
@@ -97,6 +98,7 @@ def validate_meta(path: str, meta: dict) -> list[str]:
 
 def main():
     path = sys.argv[1]
+    name = os.path.basename(path)
     all_errors = []
 
     meta, json_errors = check_plugin_json(path)
@@ -107,10 +109,10 @@ def main():
 
     if all_errors:
         for err in all_errors:
-            print(f"FAIL {path}: {err}", flush=True)
+            print(f"FAIL {name}: {err}", flush=True)
         sys.exit(1)
 
-    print(f"OK {path}: {meta['id']} v{meta['version']} valid", flush=True)
+    print(f"OK {name}: {meta['id']} v{meta['version']} valid", flush=True)
 
 
 if __name__ == "__main__":
