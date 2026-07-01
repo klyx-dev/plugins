@@ -45,17 +45,24 @@ def validate_meta(meta: dict):
     if meta.get("maxAppVersion") is not None and not isinstance(meta["maxAppVersion"], str):
         raise ValueError("plugin.maxAppVersion must be a string or null")
 
-def extract_file(tar: tarfile.TarFile, name: str, dest: Path):
-    try:
-        f = tar.extractfile(name)
-        if f:
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            with open(dest, "wb") as out:
-                out.write(f.read())
-            return True
-    except KeyError:
-        pass
+
+def extract_and_normalize_file(tar: tarfile.TarFile, tar_members: list[str], pattern: str, dest: Path) -> bool:
+    """Finds a file inside the archive using case-insensitive matching and renames it on extraction."""
+    # Find the first file inside the archive matching the lowercase target name
+    matched_name = next((m for m in tar_members if m.lower() == pattern.lower()), None)
+    
+    if matched_name:
+        try:
+            f = tar.extractfile(matched_name)
+            if f:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                with open(dest, "wb") as out:
+                    out.write(f.read())
+                return True
+        except KeyError:
+            pass
     return False
+
 
 def update_index(plugin_id: str, meta: dict):
     index_path = PLUGINS_DIR / "index.json"
@@ -84,6 +91,7 @@ def update_index(plugin_id: str, meta: dict):
         json.dump(index, f, indent=2)
         f.write("\n")
 
+
 def main():
     bundle_files = list(INCOMING_DIR.glob("*.klyx"))
     if not bundle_files:
@@ -101,6 +109,9 @@ def main():
             plugin_version = meta["version"]
             plugin_dir = PLUGINS_DIR / plugin_id
 
+            # Cache the archive member list to prevent repeated disk-seek calculations
+            tar_members = tar.getnames()
+
             # Save bundle
             plugin_dir.mkdir(parents=True, exist_ok=True)
             bundle_dest = plugin_dir / f"{plugin_version}.klyx"
@@ -112,16 +123,15 @@ def main():
                 json.dump(meta, f, indent=2)
                 f.write("\n")
 
-            # Extract icon
-            for icon_name in ["icon.png", "icon.webp", "icon.jpg", "icon.jpeg"]:
-                if extract_file(tar, icon_name, plugin_dir / icon_name):
+            supported_extensions = [".png", ".webp", ".jpg", ".jpeg"]
+            for ext in supported_extensions:
+                # Scans case-insensitively for icon.png, icon.PNG, Icon.WebP, etc.
+                if extract_and_normalize_file(tar, tar_members, f"icon{ext}", plugin_dir / "icon.png"):
                     break
 
-            # Extract docs
-            extract_file(tar, "readme.md", plugin_dir / "readme.md")
-            extract_file(tar, "changelog.md", plugin_dir / "changelog.md")
+            extract_and_normalize_file(tar, tar_members, "readme.md", plugin_dir / "readme.md")
+            extract_and_normalize_file(tar, tar_members, "changelog.md", plugin_dir / "changelog.md")
 
-            # Record owner from KV
             owner = get_owner_for(plugin_id)
             if owner:
                 owner_path = plugin_dir / ".owner"
@@ -134,6 +144,7 @@ def main():
 
     for f in INCOMING_DIR.glob("*.klyx"):
         f.unlink()
+
 
 if __name__ == "__main__":
     main()
