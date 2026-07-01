@@ -5,6 +5,10 @@ on:
     types: [opened, synchronize]
     paths:
       - 'incoming/**'
+  push:
+    branches: [main]
+    paths:
+      - 'incoming/**'
 
 permissions:
   contents: write
@@ -12,6 +16,7 @@ permissions:
 
 jobs:
   validate:
+    if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -40,8 +45,7 @@ jobs:
           done
 
   publish:
-    needs: validate
-    if: success()
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -53,20 +57,8 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Merge PR and update
-        run: |
-          git config user.name "klyx-bot"
-          git config user.email "bot@klyx-dev.github.io"
-          git remote set-url origin "https://x-access-token:${BOT_PAT}@github.com/klyx-dev/plugins.git"
-          git fetch origin ${{ github.event.pull_request.head.sha }}
-          git merge ${{ github.event.pull_request.head.sha }} --no-edit
-        env:
-          BOT_PAT: ${{ secrets.BOT_PAT }}
-
       - name: Publish bundles
         run: python3 .github/workflows/publish.py
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
 
       - name: Commit and push to main
         run: |

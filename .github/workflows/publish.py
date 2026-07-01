@@ -2,21 +2,25 @@
 """Validate a .klyx bundle and publish it to the registry."""
 
 import json
-import os
 import shutil
 import tarfile
+import urllib.request
 from pathlib import Path
 
 PLUGINS_DIR = Path("plugins")
 INCOMING_DIR = Path("incoming")
+WORKER_URL = "https://plugins.klyx.workers.dev"
 
 
-def get_owner_from_pr() -> str | None:
-    body = os.environ.get("PR_BODY", "")
-    for line in body.splitlines():
-        if "klyx-owner:" in line:
-            return line.split("klyx-owner:")[-1].strip().rstrip(" -->")
-    return None
+def get_owner_for(plugin_id: str) -> str | None:
+    url = f"{WORKER_URL}/owner/{plugin_id}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "klyx-ci"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+            return data.get("owner")
+    except Exception:
+        return None
 
 
 def extract_plugin_json(tar: tarfile.TarFile) -> dict:
@@ -117,8 +121,8 @@ def main():
             extract_file(tar, "readme.md", plugin_dir / "readme.md")
             extract_file(tar, "changelog.md", plugin_dir / "changelog.md")
 
-            # Record owner from PR body
-            owner = get_owner_from_pr()
+            # Record owner from KV
+            owner = get_owner_for(plugin_id)
             if owner:
                 owner_path = plugin_dir / ".owner"
                 owner_path.write_text(owner + "\n")
