@@ -23,8 +23,12 @@ def fetch_owner_from_repo(plugin_id: str) -> str | None:
         req = urllib.request.Request(url, headers={"User-Agent": "klyx-ci"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.read().decode().strip()
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            print(f"Note: Ownership lookup unavailable for {plugin_id} (temporary)", flush=True)
     except Exception:
-        return None
+        pass
+    return None
 
 
 def fetch_owner_from_kv(plugin_id: str) -> str | None:
@@ -35,7 +39,8 @@ def fetch_owner_from_kv(plugin_id: str) -> str | None:
             data = json.loads(resp.read())
             return data.get("owner")
     except Exception:
-        return None
+        pass
+    return None
 
 
 def main():
@@ -73,15 +78,15 @@ def main():
 
         if owner and owner != pr_author:
             print(
-                f"FAIL {path}: Plugin '{plugin_id}' is owned by '{owner}', "
-                f"but PR author is '{pr_author}'. Only the owner can publish updates.",
+                f"FAIL {path}: Plugin '{plugin_id}' is owned by '{owner}'. "
+                f"You cannot publish updates to this plugin.",
                 flush=True
             )
             exit_code = 1
         elif owner:
-            print(f"OK {path}: owner '{owner}' matches PR author", flush=True)
+            print(f"OK {path}: Ownership verified for plugin '{plugin_id}'", flush=True)
         else:
-            print(f"OK {path}: new plugin (no existing owner)", flush=True)
+            print(f"OK {path}: No existing owner for '{plugin_id}' \u2014 first-time publishers are welcome", flush=True)
 
     sys.exit(exit_code)
 

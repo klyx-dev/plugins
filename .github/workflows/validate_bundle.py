@@ -13,11 +13,11 @@ def check_plugin_json(path: str) -> tuple[dict | None, list[str]]:
         with tarfile.open(path, "r:gz") as tar:
             members = tar.getnames()
             if "plugin.json" not in members:
-                errors.append(f"Missing plugin.json in bundle")
+                errors.append("Missing plugin.json in bundle")
                 return None, errors
             f = tar.extractfile("plugin.json")
             if f is None:
-                errors.append(f"Could not extract plugin.json")
+                errors.append("Could not extract plugin.json")
                 return None, errors
             try:
                 meta = json.loads(f.read())
@@ -25,7 +25,7 @@ def check_plugin_json(path: str) -> tuple[dict | None, list[str]]:
                 errors.append(f"plugin.json has invalid JSON: {e}")
                 return None, errors
     except tarfile.ReadError:
-        errors.append(f"Not a valid .tar.gz archive")
+        errors.append("Not a valid .tar.gz archive")
         return None, errors
     except Exception as e:
         errors.append(f"Cannot read bundle: {e}")
