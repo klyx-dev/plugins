@@ -30,7 +30,10 @@ jobs:
 
       - name: Validate bundles
         id: validate
+        shell: bash
         run: |
+          set +e
+          exit_code=0
           truncate -s 0 /tmp/validate_output.txt
           files=(incoming/*.klyx)
           if [ -f "${files[0]}" ]; then
@@ -38,13 +41,16 @@ jobs:
             python3 .github/workflows/check_owner.py \
               "${{ github.event.pull_request.user.login }}" \
               "${files[@]}" 2>&1 | tee -a /tmp/validate_output.txt
+            [ $? -ne 0 ] && exit_code=1
             for f in incoming/*.klyx; do
               [ ! -f "$f" ] && continue
               python3 .github/workflows/validate_bundle.py "$f" 2>&1 | tee -a /tmp/validate_output.txt
+              [ $? -ne 0 ] && exit_code=1
             done
           else
             echo "No incoming bundles to validate." | tee -a /tmp/validate_output.txt
           fi
+          exit $exit_code
 
       - name: Post validation comment
         if: always()

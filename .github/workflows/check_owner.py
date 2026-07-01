@@ -4,6 +4,7 @@
 Checks both:
   1. The .owner file on the main branch (durable storage from previous publishes)
   2. The Worker's KV store (realtime owner from current publish sessions)
+Reports all issues found before exiting.
 """
 
 import json
@@ -24,9 +25,9 @@ def fetch_owner_from_repo(plugin_id: str) -> str | None:
             return resp.read().decode().strip()
     except urllib.error.HTTPError as e:
         if e.code != 404:
-            print(f"⚠️  Repo owner check HTTP {e.code} for {plugin_id}", flush=True)
+            print(f"⚠️  Could not check repo owner for {plugin_id}: HTTP {e.code}", flush=True)
     except Exception as e:
-        print(f"⚠️  Repo owner check error for {plugin_id}: {e}", flush=True)
+        print(f"⚠️  Could not check repo owner for {plugin_id}: {e}", flush=True)
     return None
 
 
@@ -38,7 +39,7 @@ def fetch_owner_from_kv(plugin_id: str) -> str | None:
             data = json.loads(resp.read())
             return data.get("owner")
     except Exception as e:
-        print(f"⚠️  KV owner check error for {plugin_id}: {e}", flush=True)
+        print(f"⚠️  Could not check KV owner for {plugin_id}: {e}", flush=True)
     return None
 
 
@@ -49,32 +50,45 @@ def main():
     if not bundles:
         return
 
-    for path in bundles:
-        with tarfile.open(path, "r:gz") as tar:
-            f = tar.extractfile("plugin.json")
-            if f is None:
-                print(f"❌ {path}: Missing plugin.json", flush=True)
-                sys.exit(1)
-            meta = json.loads(f.read())
+    exit_code = 0
 
-        plugin_id = meta["id"]
+    for path in bundles:
+        try:
+            with tarfile.open(path, "r:gz") as tar:
+                f = tar.extractfile("plugin.json")
+                if f is None:
+                    print(f"❌ {path}: Missing plugin.json — cannot check ownership", flush=True)
+                    exit_code = 1
+                    continue
+                meta = json.loads(f.read())
+        except Exception as e:
+            print(f"❌ {path}: Cannot read bundle — cannot check ownership: {e}", flush=True)
+            exit_code = 1
+            continue
+
+        plugin_id = meta.get("id")
+        if not plugin_id:
+            print(f"❌ {path}: plugin.json missing 'id' — cannot check ownership", flush=True)
+            exit_code = 1
+            continue
 
         owner = fetch_owner_from_repo(plugin_id)
         if owner is None:
             owner = fetch_owner_from_kv(plugin_id)
 
         if owner and owner != pr_author:
-            msg = (
+            print(
                 f"❌ {path}: Plugin '{plugin_id}' is owned by '{owner}', "
-                f"but PR author is '{pr_author}'. Only the owner can publish updates."
+                f"but PR author is '{pr_author}'. Only the owner can publish updates.",
+                flush=True
             )
-            print(msg, flush=True)
-            sys.exit(1)
-
-        if owner:
+            exit_code = 1
+        elif owner:
             print(f"✓ {path}: owner '{owner}' matches PR author", flush=True)
         else:
             print(f"✓ {path}: new plugin (no existing owner)", flush=True)
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
