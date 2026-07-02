@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "com.klyx.sampleplugin",
+    "name": "Sample Plugin",
+    "version": "1.0.0",
+    "description": "A comprehensive reference implementation demonstrating every feature of the Klyx Plugin API. Covers: plugin lifecycle, navigation, system/process execution, terminal sessions, file system, editor tabs, settings, fonts, events, screen registry, toolbar, toast, theme/colors, platform architecture, and utilities.",
+    "author": "Klyx",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null
+  }
+]
