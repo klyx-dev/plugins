@@ -2,7 +2,7 @@ name: Validate & Publish
 
 on:
   pull_request_target:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
     paths:
       - 'incoming/**'
   push:
@@ -23,6 +23,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          allow-unsafe-pr-checkout: true
 
       - uses: actions/setup-python@v6
         with:
