@@ -1,6 +1,6 @@
 # Klyx Plugin Registry
 
-Community plugin registry for [Klyx](https://klyx-dev.github.io) - a modern code editor for Android.
+Community plugin registry for [Klyx](https://klyx-dev.github.io). This repository hosts and validates community-built Klyx plugins distributed as `.klyx` bundle files.
 
 ## For Plugin Authors
 
@@ -13,32 +13,31 @@ Community plugin registry for [Klyx](https://klyx-dev.github.io) - a modern code
 
 ```bash
 ./gradlew klyxBundle
-# -> build/klyx/my-plugin.klyx
 ```
 
-### Publish
+The default output goes in `app/build/klyx/my-plugin.klyx`.
 
-**Via web UI (recommended):** Go to https://klyx-dev.github.io/publish and drag your `.klyx` file.
+### Publish
 
 **Via GitHub PR:**
 1. [Fork](https://github.com/klyx-dev/plugins/fork) the registry repo
 2. Add your `.klyx` file to the `incoming/` directory
 3. Create a pull request
-4. CI validates the bundle and auto-merges
+4. CI validates the bundle; wait for merge
 
-### Bundle format
+### Bundle Format
 
 A `.klyx` file is a gzipped tarball containing:
 
 | Entry | Required | Description |
 |-------|----------|-------------|
-| `plugin.json` | ✅ | Plugin metadata (id, version, name, etc.) |
-| `plugin.apk` | ✅ | The compiled APK |
-| `icon.png` | ❌ | Store icon (512×512 recommended) |
-| `readme.md` | ❌ | Plugin description / docs |
-| `changelog.md` | ❌ | Version changelog |
+| `plugin.json` | Yes | Plugin metadata (id, version, name, etc.) |
+| `plugin.apk` | Yes | The compiled APK |
+| `icon.png` | No | Store icon (512x512 recommended) |
+| `readme.md` | No | Plugin description / docs |
+| `changelog.md` | No | Version changelog |
 
-## Structure
+## Repository Structure
 
 ```
 plugins/
@@ -52,6 +51,8 @@ plugins/
 incoming/           <- Drop .klyx files here (via PR)
 ```
 
-## License
+---
 
-GPL-3.0
+## Contributing
+
+See the [publishing guide](#publish) above. All submissions are validated by CI before merging.
