@@ -89,10 +89,11 @@ jobs:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           PR_NUM=$(git log -1 --format="%s" | sed -n 's/.*#\([0-9]\+\).*/\1/p')
+          AUTHOR=""
           if [ -n "$PR_NUM" ]; then
             AUTHOR=$(gh pr view "$PR_NUM" --json author --jq '.author.login' 2>/dev/null || echo "")
-            echo "author=$AUTHOR" >> "$GITHUB_OUTPUT"
           fi
+          echo "author=${AUTHOR:-${{ github.actor }}}" >> "$GITHUB_OUTPUT"
 
       - name: Publish bundles
         if: steps.check.outputs.count != '0'
