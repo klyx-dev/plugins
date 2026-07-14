@@ -58,19 +58,41 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          OLD_INDEX=$(curl -sf "https://raw.githubusercontent.com/klyx-dev/plugins/main/plugins/index.json" 2>/dev/null || echo "[]")
+          > /tmp/comment_body.txt
           outcome=${{ steps.validate.outcome }}
-          body=$(cat /tmp/validate_output.txt)
-          {
-            if [ "$outcome" = "success" ]; then
-              echo "**Validation passed**"
+          if [ "$outcome" = "success" ]; then
+            echo "**Validation passed**" >> /tmp/comment_body.txt
+          else
+            echo "**Validation failed**" >> /tmp/comment_body.txt
+          fi
+          for f in incoming/*.klyx; do
+            [ ! -f "$f" ] && continue
+            INFO=$(python3 -c "
+import json, tarfile
+with tarfile.open('$f', 'r:gz') as t:
+    meta = json.loads(t.extractfile('plugin.json').read())
+print(meta['id'], meta['version'])
+" 2>/dev/null)
+            [ -z "$INFO" ] && continue
+            PLUGIN_ID=$(echo "$INFO" | cut -d' ' -f1)
+            NEW_VER=$(echo "$INFO" | cut -d' ' -f2)
+            OLD_VER=$(echo "$OLD_INDEX" | python3 -c "
+import json,sys
+data = json.load(sys.stdin)
+for e in data:
+    if e.get('id') == '$PLUGIN_ID':
+        print(e.get('version', ''))
+" 2>/dev/null)
+            if [ -n "$OLD_VER" ]; then
+              echo "  $PLUGIN_ID $OLD_VER -> $NEW_VER" >> /tmp/comment_body.txt
             else
-              echo "**Validation failed**"
+              echo "  $PLUGIN_ID $NEW_VER (new)" >> /tmp/comment_body.txt
             fi
-            echo ""
-            echo '```'
-            echo "$body"
-            echo '```'
-          } > /tmp/comment_body.txt
+          done
+          grep "^FAIL" /tmp/validate_output.txt 2>/dev/null | while read -r line; do
+            echo "  ${line#FAIL }" >> /tmp/comment_body.txt
+          done
           gh pr comment ${{ github.event.pull_request.number }} \
             --body-file /tmp/comment_body.txt
 
@@ -93,9 +115,29 @@ jobs:
           count=$(ls -1 incoming/*.klyx 2>/dev/null | wc -l)
           echo "count=$count" >> "$GITHUB_OUTPUT"
 
+      - name: Get PR author for owner fallback
+        if: steps.check.outputs.count != '0'
+        id: pr_author
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          PR_NUM=$(git log -1 --format="%s" | sed -n 's/.*#\([0-9]\+\).*/\1/p')
+          if [ -n "$PR_NUM" ]; then
+            AUTHOR=$(gh pr view "$PR_NUM" --json author --jq '.author.login' 2>/dev/null || echo "")
+            echo "author=$AUTHOR" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish bundles
         if: steps.check.outputs.count != '0'
-        run: python3 .github/workflows/publish.py
+        env:
+          BOT_PAT: ${{ secrets.BOT_PAT }}
+        run: |
+          OWNER="${{ steps.pr_author.outputs.author }}"
+          if [ -n "$OWNER" ]; then
+            python3 .github/workflows/publish.py --default-owner "$OWNER"
+          else
+            python3 .github/workflows/publish.py
+          fi
 
       - name: Commit and push to main
         if: steps.check.outputs.count != '0'

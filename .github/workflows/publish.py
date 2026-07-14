@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Validate a .klyx bundle and publish it to the registry."""
 
+import argparse
 import json
+import os
 import shutil
 import tarfile
 import urllib.request
@@ -21,6 +23,19 @@ def get_owner_for(plugin_id: str) -> str | None:
             return data.get("owner")
     except Exception:
         return None
+
+
+def set_owner_for(plugin_id: str, owner: str, bot_pat: str):
+    url = f"{WORKER_URL}/owner/{plugin_id}"
+    try:
+        body = json.dumps({"owner": owner}).encode()
+        req = urllib.request.Request(url, data=body, method="PUT",
+                                     headers={"User-Agent": "klyx-ci",
+                                              "Content-Type": "application/json",
+                                              "Authorization": f"Bearer {bot_pat}"})
+        urllib.request.urlopen(req, timeout=10)
+    except Exception as e:
+        print(f"Note: Could not save owner to KV for {plugin_id}: {e}", flush=True)
 
 
 def extract_plugin_json(tar: tarfile.TarFile) -> dict:
@@ -93,6 +108,10 @@ def update_index(plugin_id: str, meta: dict):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--default-owner", help="Fallback owner GitHub username when KV has no record")
+    args = parser.parse_args()
+
     bundle_files = list(INCOMING_DIR.glob("*.klyx"))
     if not bundle_files:
         print("No .klyx files found in workspace", flush=True)
@@ -133,9 +152,14 @@ def main():
             extract_and_normalize_file(tar, tar_members, "changelog.md", plugin_dir / "changelog.md")
 
             owner = get_owner_for(plugin_id)
+            if not owner:
+                owner = args.default_owner
             if owner:
                 owner_path = plugin_dir / ".owner"
                 owner_path.write_text(owner + "\n")
+                bot_pat = os.environ.get("BOT_PAT") or os.environ.get("GITHUB_PAT", "")
+                if bot_pat:
+                    set_owner_for(plugin_id, owner, bot_pat)
 
             # Update index
             update_index(plugin_id, meta)
