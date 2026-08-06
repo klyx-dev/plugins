@@ -1,0 +1,19 @@
+{
+  "id": "com.klyx.markdown.viewer",
+  "name": "Markdown Viewer",
+  "version": "0.1.0",
+  "minAppVersion": "4.2.0",
+  "entryClass": "com.vv.klyx.mdviewer.MarkdownViewerPlugin",
+  "description": "Markdown viewer plugin for Klyx",
+  "icon": "icon.png",
+  "author": {
+    "name": "Vivek",
+    "github": "itsvks19"
+  },
+  "license": "MIT",
+  "links": {
+    "source": "https://github.com/itsvks19/klyx-markdown-viewer",
+    "issues": "https://github.com/itsvks19/klyx-markdown-viewer/issues"
+  },
+  "permissions": []
+}

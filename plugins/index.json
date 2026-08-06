@@ -1,5 +1,14 @@
 [
   {
+    "id": "com.klyx.markdown.viewer",
+    "name": "Markdown Viewer",
+    "version": "0.1.0",
+    "description": "Markdown viewer plugin for Klyx",
+    "author": "Vivek",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null
+  },
+  {
     "id": "com.klyx.sampleplugin",
     "name": "Sample Plugin",
     "version": "1.0.1",
