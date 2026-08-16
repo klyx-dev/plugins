@@ -6,8 +6,10 @@ Community plugin registry for [Klyx](https://klyx-dev.github.io). This repositor
 
 ### Prerequisites
 
-1. A `plugin.json` at the root of your project (see [sample]())
-2. The `io.github.klyx-dev.plugin` Gradle plugin applied
+1. ~~A `plugin.json` at the root of your project (see [sample]())~~.
+2. The `io.github.klyx-dev.compiler.plugin` Gradle plugin applied
+
+**Note:** _there is no `plugin.json` file, the `@PluginManifest` annotation generates it for you at compile time._
 
 ### Build
 
@@ -24,6 +26,8 @@ The default output goes in `app/build/klyx/my-plugin.klyx`.
 2. Add your `.klyx` file to the `incoming/` directory
 3. Create a pull request
 4. CI validates the bundle; wait for merge
+
+**Note:** _upload your `.klyx` bundle directly from github web, because cloning the repo download all files, which will take alot time._
 
 ### Bundle Format
 
