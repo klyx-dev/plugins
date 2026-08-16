@@ -16,5 +16,14 @@
     "author": "uliteamr",
     "minAppVersion": "4.2.0",
     "maxAppVersion": null
+  },
+  {
+    "id": "com.thekrdev.klyx.tslsp",
+    "name": "TypeScript LSP",
+    "version": "1.1.0",
+    "description": "JavaScript and TypeScript language server provider plugin for Klyx (vtsls).",
+    "author": "TheKR",
+    "minAppVersion": "4.2.0",
+    "maxAppVersion": null
   }
 ]

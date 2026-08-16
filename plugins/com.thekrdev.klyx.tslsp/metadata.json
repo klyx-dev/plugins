@@ -1,0 +1,20 @@
+{
+  "id": "com.thekrdev.klyx.tslsp",
+  "name": "TypeScript LSP",
+  "version": "1.1.0",
+  "minAppVersion": "4.2.0",
+  "entryClass": "com.thekrdev.klyx.tslsp.TsLspPlugin",
+  "description": "JavaScript and TypeScript language server provider plugin for Klyx (vtsls).",
+  "icon": "icon.png",
+  "author": {
+    "name": "TheKR",
+    "url": "https://thekr.is-a.dev",
+    "github": "thekrdev"
+  },
+  "license": "MIT",
+  "links": {
+    "source": "https://github.com/thekrdev/klyx-typescript-lsp",
+    "issues": "https://github.com/thekrdev/klyx-typescript-lsp/issues"
+  },
+  "permissions": []
+}
