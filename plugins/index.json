@@ -11,10 +11,10 @@
   {
     "id": "com.uliteamr.rustupmanager",
     "name": "Rustup Manager",
-    "version": "1.1.0",
+    "version": "1.2.1",
     "description": "Full Rust toolchain manager built on rustup: install and switch toolchains, manage components and targets, and get rust-analyzer wired up as a language server automatically.",
     "author": "uliteamr",
-    "minAppVersion": "4.2.0",
+    "minAppVersion": "4.3.0",
     "maxAppVersion": null
   },
   {
